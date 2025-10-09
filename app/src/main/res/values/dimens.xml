@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing -->
+    <dimen name="spacing_xxs">2dp</dimen>
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">12dp</dimen>
+    <dimen name="spacing_lg">16dp</dimen>
+    <dimen name="spacing_xl">20dp</dimen>
+    
+    <!-- Text Sizes -->
+    <dimen name="text_size_title">20sp</dimen>
+    <dimen name="text_size_body">14sp</dimen>
+    <dimen name="text_size_label">12sp</dimen>
+    <dimen name="countdown_value_size">32sp</dimen>
+    <dimen name="countdown_value_min_size">20sp</dimen>
+    <dimen name="countdown_label_size">11sp</dimen>
+    
+    <!-- Card Properties -->
+    <dimen name="card_margin_horizontal">12dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="card_corner_radius_small">12dp</dimen>
+    
+    <!-- Countdown Specific -->
+    <dimen name="countdown_padding">20dp</dimen>
+    <dimen name="countdown_item_padding">2dp</dimen>
+    
+    <!-- Icons and Buttons -->
+    <dimen name="icon_button_size">40dp</dimen>
+    <dimen name="icon_size">20dp</dimen>
+    
+    <!-- Other -->
+    <dimen name="color_indicator_width">4dp</dimen>
+    <dimen name="color_indicator_height">40dp</dimen>
+    <dimen name="bottom_padding">80dp</dimen>
+</resources>

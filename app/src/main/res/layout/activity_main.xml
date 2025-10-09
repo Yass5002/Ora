@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".MainActivity">
+
+    <!-- Background message -->
+    <TextView
+        android:id="@+id/madeWithLove"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/made_with_love"
+        android:gravity="center"
+        android:padding="12dp"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="14sp"
+        android:layout_gravity="bottom"
+        android:alpha="0.4"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Sticky Header (NO card wrapper, just the content) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Top Bar (Fixed) -->
+            <include
+                android:id="@+id/topBar"
+                layout="@layout/layout_top_bar" />
+
+            <!-- Search Bar (Fixed) -->
+            <include
+                android:id="@+id/searchBar"
+                layout="@layout/layout_search_bar" />
+
+        </LinearLayout>
+
+        <!-- Scrollable Content Area -->
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Empty State -->
+                <LinearLayout
+                    android:id="@+id/emptyStateLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="48dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="32dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <com.airbnb.lottie.LottieAnimationView
+                        android:id="@+id/emptyStateAnimation"
+                        android:layout_width="200dp"
+                        android:layout_height="200dp"
+                        app:lottie_autoPlay="true"
+                        app:lottie_loop="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="No Events Yet"
+                        android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="Create your first countdown event\nto get started!"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                </LinearLayout>
+
+                <!-- No Results State -->
+                <LinearLayout
+                    android:id="@+id/noResultsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="48dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="32dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:src="@drawable/ic_search_24"
+                        android:alpha="0.3"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="No Results Found"
+                        android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="Try adjusting your search terms\nor create a new event"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                </LinearLayout>
+
+                <!-- Countdown Events RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/countdownRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="16dp"
+                    android:paddingBottom="88dp"
+                    tools:listitem="@layout/item_countdown_event" />
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+
+    <!-- Floating Action Button Menu -->
+    <!-- Backdrop overlay for FAB menu -->
+    <View
+        android:id="@+id/fabMenuBackdrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Duration-based FAB (appears above main FAB) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="100dp"
+        android:contentDescription="Add duration-based countdown"
+        app:srcCompat="@drawable/ic_timer_24"
+        app:tint="?attr/colorOnSecondary"
+        app:backgroundTint="?attr/colorSecondary"
+        app:elevation="6dp"
+        app:fabSize="mini"
+        android:visibility="gone"
+        android:alpha="0"
+        android:scaleX="0"
+        android:scaleY="0" />
+
+    <!-- Duration FAB Label -->
+    <TextView
+        android:id="@+id/fabDurationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="84dp"
+        android:layout_marginBottom="112dp"
+        android:text="Duration"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorOnSurface"
+        android:background="@drawable/fab_label_background"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:elevation="6dp"
+        android:visibility="gone"
+        android:alpha="0"
+        android:gravity="center" />
+
+    <!-- Date-based FAB (appears above duration FAB) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabDateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="168dp"
+        android:contentDescription="Add date-based countdown"
+        app:srcCompat="@drawable/ic_calendar_24"
+        app:tint="?attr/colorOnSecondary"
+        app:backgroundTint="?attr/colorSecondary"
+        app:elevation="6dp"
+        app:fabSize="mini"
+        android:visibility="gone"
+        android:alpha="0"
+        android:scaleX="0"
+        android:scaleY="0" />
+
+    <!-- Date FAB Label -->
+    <TextView
+        android:id="@+id/fabDateTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="84dp"
+        android:layout_marginBottom="180dp"
+        android:text="Date &amp; Time"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorOnSurface"
+        android:background="@drawable/fab_label_background"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:elevation="6dp"
+        android:visibility="gone"
+        android:alpha="0"
+        android:gravity="center" />
+
+    <!-- Main FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddEvent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:contentDescription="Add countdown event"
+        app:srcCompat="@drawable/ic_add_24"
+        app:tint="?attr/colorOnPrimaryContainer"
+        app:backgroundTint="?attr/colorPrimaryContainer"
+        app:elevation="6dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

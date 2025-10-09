@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Ora</string>
+    <string name="made_with_love">Made with love by Yassine</string>
+
+    <!-- Added strings to replace hardcoded values in activity_event_detail.xml -->
+    <string name="go_back">Go back</string>
+    <string name="share_event">Share event</string>
+    <string name="pinned_event">Pinned event</string>
+    <string name="pin_event">Pin event</string>
+    <string name="delete_event">Delete event</string>
+    <string name="days">DAYS</string>
+    <string name="hours">HOURS</string>
+    <string name="minutes">MINUTES</string>
+    <string name="seconds">SECONDS</string>
+    <string name="created_date_desc">Created date</string>
+    <string name="created_label">Created</string>
+    <string name="reminders_desc">Reminders</string>
+    <string name="reminders_label">Reminders</string>
+    <string name="keep_screen_on_desc">Keep screen on</string>
+    <string name="keep_screen_on_label">Keep screen on</string>
+
+    <!-- Added missing resource referenced by layouts -->
+    <string name="event_options">Event options</string>
+
+    <!-- Empty placeholder string used to satisfy lint (single space intended) -->
+    <string name="empty_placeholder"> </string>
+
+</resources>
