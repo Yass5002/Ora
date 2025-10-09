@@ -8,6 +8,19 @@
     android:background="?attr/colorSurface"
     tools:context=".MainActivity">
 
+    <!-- ================================================================ -->
+    <!-- ✨ THE FIX: DUMMY VIEW TO STEAL INITIAL FOCUS ON OLDER ANDROID ✨ -->
+    <!-- This tiny, invisible view will grab the initial focus on startup, -->
+    <!-- preventing the EditText from automatically focusing and opening -->
+    <!-- the keyboard on Android 8 and below. -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+    <!-- ================================================================ -->
+
+
     <!-- Background message -->
     <TextView
         android:id="@+id/madeWithLove"
