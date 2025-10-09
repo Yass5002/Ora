@@ -21,19 +21,19 @@
     <!-- ================================================================ -->
 
 
-    <!-- Background message -->
-    <TextView
-        android:id="@+id/madeWithLove"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/made_with_love"
-        android:gravity="center"
-        android:padding="12dp"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="14sp"
-        android:layout_gravity="bottom"
-        android:alpha="0.4"
-        android:layout_marginBottom="8dp" />
+<!--    &lt;!&ndash; Background message &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/madeWithLove"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/made_with_love"-->
+<!--        android:gravity="center"-->
+<!--        android:padding="12dp"-->
+<!--        android:textColor="@android:color/darker_gray"-->
+<!--        android:textSize="14sp"-->
+<!--        android:layout_gravity="bottom"-->
+<!--        android:alpha="0.4"-->
+<!--        android:layout_marginBottom="8dp" />-->
 
     <LinearLayout
         android:layout_width="match_parent"

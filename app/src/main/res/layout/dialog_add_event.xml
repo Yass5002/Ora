@@ -119,14 +119,13 @@
             android:layout_marginBottom="32dp">
 
             <View
-                android:id="@+id/color1"
+                    android:id="@+id/color1"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginEnd="12dp"
                 android:background="@drawable/color_primary_selector"
                 android:clickable="true"
-                android:focusable="true"
-                android:contentDescription="Crimson color" />
+                android:focusable="true" />
 
             <View
                 android:id="@+id/color2"
@@ -136,7 +135,7 @@
                 android:background="@drawable/color_secondary_selector"
                 android:clickable="true"
                 android:focusable="true"
-                android:contentDescription="Blue color" />
+             />
 
             <View
                 android:id="@+id/color3"
@@ -145,8 +144,9 @@
                 android:layout_marginEnd="12dp"
                 android:background="@drawable/color_tertiary_selector"
                 android:clickable="true"
-                android:focusable="true"
-                android:contentDescription="Yellow color" />
+                android:focusable="true"/>
+                <!--android:contentDescription="Yellow color" -->
+
 
             <View
                 android:id="@+id/color4"
@@ -156,7 +156,7 @@
                 android:background="@drawable/color_error_selector"
                 android:clickable="true"
                 android:focusable="true"
-                android:contentDescription="Slate Blue color" />
+                 />
 
             <View
                 android:id="@+id/color5"

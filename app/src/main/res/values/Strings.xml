@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Ora</string>
-    <string name="made_with_love">Made with love by Yassine</string>
+<!--    <string name="made_with_love">Made with love by Yassine</string>-->
 
     <!-- Added strings to replace hardcoded values in activity_event_detail.xml -->
     <string name="go_back">Go back</string>

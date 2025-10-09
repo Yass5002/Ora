@@ -2,6 +2,7 @@ package com.dev.ora.views
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -55,6 +56,10 @@ class CountdownProgressBorderView @JvmOverloads constructor(
     private var dimAlpha: Float = 1f
     private var dimAnimator: ValueAnimator? = null
 
+    // Theme detection
+    private var isDarkTheme: Boolean = false
+    private var themeGlowMultiplier: Float = 1f
+
     // Padding for glow overflow (matching the negative margin in XML)
     private val glowPadding: Float = 16f.dpToPx()
 
@@ -73,8 +78,19 @@ class CountdownProgressBorderView @JvmOverloads constructor(
         val trackColor = typedValue.data
         backgroundPaint.color = trackColor
 
+        // Detect theme
+        updateThemeDetection()
+
         // Start subtle glow pulsing animation
         startGlowAnimation()
+    }
+
+    private fun updateThemeDetection() {
+        val nightModeFlags = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        isDarkTheme = nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+
+        // Set multiplier for light theme (reduce glow intensity and spread)
+        themeGlowMultiplier = if (isDarkTheme) 1f else 0.4f
     }
 
     private fun startGlowAnimation() {
@@ -84,9 +100,19 @@ class CountdownProgressBorderView @JvmOverloads constructor(
             repeatMode = ValueAnimator.REVERSE
             addUpdateListener { animator ->
                 val value = animator.animatedValue as Float
-                // Use sine wave for smoother pulsing - reduced intensity when dimmed
-                val baseIntensity = if (isDimmed) 0.3f else 0.7f
-                val pulseRange = if (isDimmed) 0.1f else 0.3f
+                // Use sine wave for smoother pulsing - adjusted for theme
+                val baseIntensity = when {
+                    isDimmed && !isDarkTheme -> 0.2f
+                    isDimmed && isDarkTheme -> 0.3f
+                    !isDimmed && !isDarkTheme -> 0.4f
+                    else -> 0.7f
+                }
+                val pulseRange = when {
+                    isDimmed && !isDarkTheme -> 0.05f
+                    isDimmed && isDarkTheme -> 0.1f
+                    !isDimmed && !isDarkTheme -> 0.15f
+                    else -> 0.3f
+                }
                 glowIntensity = baseIntensity + (pulseRange * sin(value * Math.PI).toFloat())
                 invalidate()
             }
@@ -94,15 +120,17 @@ class CountdownProgressBorderView @JvmOverloads constructor(
         }
     }
 
-    fun setProgress(newProgress: Float, animate: Boolean = true) {
+    fun setProgress(newProgress: Float, animate: Boolean = true, duration: Long = 1200) {
         // When progress reaches 1.0 (expired), automatically dim
         if (newProgress >= 1f && !isDimmed) {
             setDimmed(true, animate = true)
         }
 
-        if (animate && progressAnimator == null) {
-            progressAnimator = ValueAnimator.ofFloat(0f, newProgress).apply {
-                duration = 1200
+        progressAnimator?.cancel()
+
+        if (animate) {
+            progressAnimator = ValueAnimator.ofFloat(animatedProgress, newProgress).apply {
+                this.duration = duration
                 interpolator = DecelerateInterpolator(2f)
                 addUpdateListener { animator ->
                     animatedProgress = animator.animatedValue as Float
@@ -110,7 +138,7 @@ class CountdownProgressBorderView @JvmOverloads constructor(
                 }
                 start()
             }
-        } else if (!animate) {
+        } else {
             animatedProgress = newProgress
             invalidate()
         }
@@ -161,30 +189,52 @@ class CountdownProgressBorderView @JvmOverloads constructor(
     }
 
     private fun updateGlowPaints() {
-        // Apply dimming to glow intensity
-        val glowAlpha = if (isDimmed) 0.2f else 0.4f
-        val softGlowAlpha = if (isDimmed) 0.1f else 0.2f
+        // Apply dimming to glow intensity with theme adjustment
+        val glowAlpha = when {
+            isDimmed && !isDarkTheme -> 0.1f
+            isDimmed && isDarkTheme -> 0.2f
+            !isDimmed && !isDarkTheme -> 0.2f
+            else -> 0.4f
+        }
+        val softGlowAlpha = when {
+            isDimmed && !isDarkTheme -> 0.05f
+            isDimmed && isDarkTheme -> 0.1f
+            !isDimmed && !isDarkTheme -> 0.1f
+            else -> 0.2f
+        }
 
-        // === ✨ MODIFIED - TIGHTER GLOW ✨ ===
-        // We are reducing the multipliers to make the glow less spread out.
+        // Tighter glow with reduced spread for light theme
+        val glowStrokeMultiplier = if (isDarkTheme) {
+            if (isDimmed) 2.0f else 3.5f
+        } else {
+            if (isDimmed) 1.5f else 2.5f
+        }
 
-        // Main glow layer - wider and more transparent
-        glowPaint.color = adjustAlpha(borderColor, glowAlpha * dimAlpha)
-        // BEFORE: borderWidth * (if (isDimmed) 2.5f else 4f)
-        glowPaint.strokeWidth = borderWidth * (if (isDimmed) 2.0f else 3.5f) // AFTER
+        glowPaint.color = adjustAlpha(borderColor, glowAlpha * dimAlpha * themeGlowMultiplier)
+        glowPaint.strokeWidth = borderWidth * glowStrokeMultiplier
 
-        // Blur is reduced when dimmed for subtler effect
-        // BEFORE: val blurRadius = if (isDimmed) borderWidth * 1.5f else borderWidth * 3f
-        val blurRadius = if (isDimmed) borderWidth * 1.5f else borderWidth * 2.5f // AFTER
+        val blurRadius = if (isDarkTheme) {
+            if (isDimmed) borderWidth * 1.5f else borderWidth * 2.5f
+        } else {
+            if (isDimmed) borderWidth * 1.0f else borderWidth * 1.5f
+        }
         glowPaint.maskFilter = BlurMaskFilter(blurRadius, BlurMaskFilter.Blur.NORMAL)
 
-        // Soft outer glow - very wide and very transparent
-        softGlowPaint.color = adjustAlpha(borderColor, softGlowAlpha * dimAlpha)
-        // BEFORE: borderWidth * (if (isDimmed) 4f else 6f)
-        softGlowPaint.strokeWidth = borderWidth * (if (isDimmed) 3.5f else 5f) // AFTER
+        // Soft outer glow - reduced spread for light theme
+        val softGlowStrokeMultiplier = if (isDarkTheme) {
+            if (isDimmed) 3.5f else 5f
+        } else {
+            if (isDimmed) 2.5f else 3.5f
+        }
 
-        // BEFORE: val softBlurRadius = if (isDimmed) borderWidth * 3f else borderWidth * 5f
-        val softBlurRadius = if (isDimmed) borderWidth * 3f else borderWidth * 4f // AFTER
+        softGlowPaint.color = adjustAlpha(borderColor, softGlowAlpha * dimAlpha * themeGlowMultiplier)
+        softGlowPaint.strokeWidth = borderWidth * softGlowStrokeMultiplier
+
+        val softBlurRadius = if (isDarkTheme) {
+            if (isDimmed) borderWidth * 3f else borderWidth * 4f
+        } else {
+            if (isDimmed) borderWidth * 2f else borderWidth * 2.5f
+        }
         softGlowPaint.maskFilter = BlurMaskFilter(softBlurRadius, BlurMaskFilter.Blur.NORMAL)
     }
 
@@ -192,6 +242,16 @@ class CountdownProgressBorderView @JvmOverloads constructor(
         super.onSizeChanged(w, h, oldw, oldh)
         updateBorderPath()
         updateGlowPaints()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        // Update theme detection when configuration changes
+        updateThemeDetection()
+        updateGlowPaints()
+        // Restart glow animation with new theme settings
+        glowAnimator?.cancel()
+        startGlowAnimation()
     }
 
     private fun updateBorderPath() {
@@ -269,28 +329,41 @@ class CountdownProgressBorderView @JvmOverloads constructor(
             val progressPath = Path()
             pathMeasure.getSegment(0f, progressLength, progressPath, true)
 
-            // Apply current glow intensity with dimming
-            val currentAlpha = glowIntensity * dimAlpha
+            // Apply current glow intensity with dimming and theme adjustment
+            val currentAlpha = glowIntensity * dimAlpha * themeGlowMultiplier
 
-            // Draw glow layers - these will now extend outside the card
+            // Draw glow layers - adjusted for theme
             // Layer 1: Soft outer glow (widest, most transparent)
-            softGlowPaint.alpha = (255 * 0.15f * currentAlpha).toInt()
+            val softGlowLayerAlpha = if (isDarkTheme) 0.15f else 0.08f
+            softGlowPaint.alpha = (255 * softGlowLayerAlpha * currentAlpha).toInt()
             canvas.drawPath(progressPath, softGlowPaint)
 
             // Layer 2: Main glow (medium width, medium transparency)
-            glowPaint.alpha = (255 * 0.25f * currentAlpha).toInt()
+            val glowLayerAlpha = if (isDarkTheme) 0.25f else 0.12f
+            glowPaint.alpha = (255 * glowLayerAlpha * currentAlpha).toInt()
             canvas.drawPath(progressPath, glowPaint)
 
-            // Layer 3: Inner bright line with gradient (subdued when dimmed)
-            val gradientColors = if (isDimmed) {
-                intArrayOf(
+            // Layer 3: Inner bright line with gradient (subdued when dimmed or in light theme)
+            val gradientColors = when {
+                isDimmed && !isDarkTheme -> intArrayOf(
+                    adjustAlpha(borderColor, 0.2f * dimAlpha),
+                    adjustAlpha(borderColor, 0.3f * dimAlpha),
+                    adjustAlpha(borderColor, 0.25f * dimAlpha),
+                    adjustAlpha(borderColor, 0.2f * dimAlpha)
+                )
+                isDimmed && isDarkTheme -> intArrayOf(
                     adjustAlpha(borderColor, 0.3f * dimAlpha),
                     adjustAlpha(borderColor, 0.5f * dimAlpha),
                     adjustAlpha(borderColor, 0.4f * dimAlpha),
                     adjustAlpha(borderColor, 0.3f * dimAlpha)
                 )
-            } else {
-                intArrayOf(
+                !isDimmed && !isDarkTheme -> intArrayOf(
+                    adjustAlpha(borderColor, 0.4f),
+                    adjustAlpha(borderColor, 0.7f),
+                    adjustAlpha(lightenColor(borderColor), 0.6f),
+                    adjustAlpha(borderColor, 0.7f)
+                )
+                else -> intArrayOf(
                     adjustAlpha(borderColor, 0.6f),
                     borderColor,
                     adjustAlpha(lightenColor(borderColor), 0.9f),
@@ -311,8 +384,8 @@ class CountdownProgressBorderView @JvmOverloads constructor(
             borderPaint.alpha = (255 * dimAlpha).toInt()
             canvas.drawPath(progressPath, borderPaint)
 
-            // Layer 4: Bright center line (only when not dimmed)
-            if (!isDimmed && dimAlpha > 0.7f) {
+            // Layer 4: Bright center line (only when not dimmed and in dark theme)
+            if (!isDimmed && isDarkTheme && dimAlpha > 0.7f) {
                 val centerPaint = Paint().apply {
                     style = Paint.Style.STROKE
                     strokeCap = Paint.Cap.ROUND
@@ -326,21 +399,25 @@ class CountdownProgressBorderView @JvmOverloads constructor(
 
             borderPaint.shader = null
 
-            // Add a subtle bright spot at the progress end (only when not dimmed and not complete)
+            // Add a subtle bright spot at the progress end (adjusted for theme)
             if (!isDimmed && animatedProgress > 0.01f && animatedProgress < 0.99f) {
                 val endPoint = FloatArray(2)
                 val endTan = FloatArray(2)
                 pathMeasure.getPosTan(progressLength, endPoint, endTan)
+
+                val spotRadius = borderWidth * (if (isDarkTheme) 3f else 2f)
+                val spotAlpha = if (isDarkTheme) 0.5f else 0.3f
+                val spotAlpha2 = if (isDarkTheme) 0.3f else 0.15f
 
                 val spotPaint = Paint().apply {
                     style = Paint.Style.FILL
                     isAntiAlias = true
                     shader = RadialGradient(
                         endPoint[0], endPoint[1],
-                        borderWidth * 3f,
+                        spotRadius,
                         intArrayOf(
-                            adjustAlpha(lightenColor(borderColor), 0.5f * dimAlpha),
-                            adjustAlpha(borderColor, 0.3f * dimAlpha),
+                            adjustAlpha(lightenColor(borderColor), spotAlpha * dimAlpha * themeGlowMultiplier),
+                            adjustAlpha(borderColor, spotAlpha2 * dimAlpha * themeGlowMultiplier),
                             Color.TRANSPARENT
                         ),
                         floatArrayOf(0f, 0.4f, 1f),
@@ -348,7 +425,7 @@ class CountdownProgressBorderView @JvmOverloads constructor(
                     )
                     alpha = (255 * currentAlpha).toInt()
                 }
-                canvas.drawCircle(endPoint[0], endPoint[1], borderWidth * 3f, spotPaint)
+                canvas.drawCircle(endPoint[0], endPoint[1], spotRadius, spotPaint)
             }
         }
 

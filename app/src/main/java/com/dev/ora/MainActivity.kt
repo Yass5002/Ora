@@ -698,7 +698,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupColorSelection(dialogBinding: DialogAddEventBinding, onColorSelected: (String) -> Unit) {
-        val colors = listOf("#DC143C", "#007BFF", "#DFFF00", "#6A5ACD", "CUSTOM")
+        val colors = listOf("#BF00FF", "#00FFFF", "#00FF44", "#FFD700", "CUSTOM")
         val colorViews = listOf(
             dialogBinding.color1,
             dialogBinding.color2,
@@ -726,7 +726,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupColorSelectionWithPreselect(dialogBinding: DialogAddEventBinding, preselectedColor: String, onColorSelected: (String) -> Unit) {
-        val colors = listOf("#DC143C", "#007BFF", "#DFFF00", "#6A5ACD", "CUSTOM")
+        val colors = listOf("#BF00FF", "#00FFFF", "#00FF44", "#FFD700", "CUSTOM")
         val colorViews = listOf(
             dialogBinding.color1,
             dialogBinding.color2,
@@ -864,7 +864,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDurationColorSelection(dialogBinding: DialogAddDurationEventBinding, onColorSelected: (String) -> Unit) {
-        val colors = listOf("#DC143C", "#007BFF", "#DFFF00", "#6A5ACD", "CUSTOM")
+        val colors = listOf("#BF00FF", "#00FFFF", "#00FF44", "#FFD700", "CUSTOM")
         val colorViews = listOf(dialogBinding.color1, dialogBinding.color2, dialogBinding.color3, dialogBinding.color4, dialogBinding.color5)
         colorViews.forEachIndexed { index, view ->
             view.setOnClickListener {

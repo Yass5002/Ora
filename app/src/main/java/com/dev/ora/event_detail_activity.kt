@@ -34,6 +34,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.max
 
 class EventDetailActivity : AppCompatActivity() {
 
@@ -57,14 +58,18 @@ class EventDetailActivity : AppCompatActivity() {
     private var countdownContentRevealed = false
     private var entranceAnimated = false
     private var cardEntranceAnimated = false
+    private var progressBorderRevealed = false
 
-    private val ANIM_MASTER_DURATION = 320L
+    private val ANIM_MASTER_DURATION = 400L
     private val CARD_BASE_DELAY = 40L
     private val CARD_STAGGER = 60L
     private val ROW_BASE_DELAY = 120L
     private val ROW_STAGGER = 50L
     private val NUMBER_STAGGER = 60L
     private val CONTAINER_FADE_DURATION = ANIM_MASTER_DURATION
+    private val PROGRESS_MIN_DURATION = 400L // Minimum duration for very small progress
+    private val PROGRESS_MAX_DURATION = 2000L // Maximum duration for full progress
+    private val PROGRESS_UPDATE_INTERVAL = 100L // Update progress every 100ms for smoothness
 
     companion object {
         const val EXTRA_EVENT_ID = "extra_event_id"
@@ -82,7 +87,6 @@ class EventDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityEventDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
 
         // Disable clipping on ALL parent containers to allow glow overflow
         binding.root.clipChildren = false
@@ -152,6 +156,11 @@ class EventDetailActivity : AppCompatActivity() {
         binding.countdownContent.alpha = 0f
         binding.countdownPlaceholder.visibility = View.VISIBLE
         binding.countdownPlaceholder.alpha = 1f
+
+        // Initially hide the progress border
+        binding.countdownProgressBorder.visibility = View.INVISIBLE
+        binding.countdownProgressBorder.alpha = 0f
+
         binding.eventTitle.text = event.title
         binding.eventDescription.visibility = if (event.description.isNotEmpty()) {
             binding.eventDescription.text = event.description
@@ -168,7 +177,10 @@ class EventDetailActivity : AppCompatActivity() {
         binding.targetDate.text = SimpleDateFormat("EEEE, MMMM dd, yyyy 'at' h:mm a", Locale.getDefault()).format(event.targetDate)
         binding.createdDate.text = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(event.createdAt)
         binding.remindersStatus.text = if (event.hasReminders) "Enabled" else "Disabled"
+
+        // Setup progress border but keep it hidden
         setupProgressBorder()
+
         try {
             val digitMinSp = 4; val digitMaxSp = 72; val digitStepSp = 1
             listOf(binding.daysValue, binding.hoursValue, binding.minutesValue, binding.secondsValue).forEach { tv ->
@@ -179,6 +191,7 @@ class EventDetailActivity : AppCompatActivity() {
                 TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(tv, labelMinSp, labelMaxSp, labelStepSp, TypedValue.COMPLEX_UNIT_SP)
             }
         } catch (t: Throwable) { /* ignore */ }
+
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         val typedValue = TypedValue()
         theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
@@ -190,18 +203,23 @@ class EventDetailActivity : AppCompatActivity() {
             val elevationInPixels = 2 * resources.displayMetrics.density
             binding.countdownCard.cardElevation = elevationInPixels
         }
+
         val countdownTime = CountdownUtils.calculateTimeRemaining(event.targetDate)
         isCurrentlyExpired = countdownTime.isExpired
         updateCountdown()
+
         if (isCurrentlyExpired) {
             applyDimmingEffects(animate = false)
-            // Also set the progress border to dimmed state initially if expired
             binding.countdownProgressBorder.setDimmed(true, animate = false)
         }
+
         binding.root.post {
             try {
                 animateCardPopups(binding.root, excludeIds = setOf(binding.countdownPlaceholder.id, binding.bottomCard.id))
                 animateLinearLayoutsFromBottomScale(binding.root, excludeIds = setOf(binding.countdownPlaceholder.id))
+
+                // Schedule progress border reveal at 90% of other animations
+                scheduleProgressBorderReveal()
             } catch (ignored: Exception) { /* Ignore */ }
         }
     }
@@ -209,14 +227,97 @@ class EventDetailActivity : AppCompatActivity() {
     private fun setupProgressBorder() {
         try {
             val border = binding.countdownProgressBorder
-            border.visibility = View.VISIBLE
             border.setBorderColor(event.color)
-            border.setProgress(calculateEventProgress(), animate = true)
-            startProgressUpdates()
+            // Don't set progress yet - wait for reveal animation
         } catch (e: Exception) {
             android.util.Log.e(TAG, "Failed to setup progress border", e)
             binding.countdownProgressBorder.visibility = View.GONE
         }
+    }
+
+    private fun scheduleProgressBorderReveal() {
+        if (progressBorderRevealed) return
+
+        // Calculate max delay from all animations
+        val maxCardDelay = CARD_BASE_DELAY + (getCardCount() * CARD_STAGGER)
+        val maxRowDelay = ROW_BASE_DELAY + (getRowCount() * ROW_STAGGER)
+        val maxAnimDelay = maxOf(maxCardDelay, maxRowDelay) + ANIM_MASTER_DURATION
+
+        // Start progress border animation at 90% of the other animations duration
+        val progressBorderDelay = (maxAnimDelay * 0.9f).toLong()
+
+        countdownUpdateHandler.postDelayed({
+            revealProgressBorder()
+        }, progressBorderDelay)
+    }
+
+    private fun revealProgressBorder() {
+        if (progressBorderRevealed) return
+        progressBorderRevealed = true
+
+        val progress = calculateEventProgress()
+
+        // Calculate dynamic duration based on progress distance
+        val progressDuration = calculateProgressAnimationDuration(progress)
+
+        // Make visible and start from 0
+        binding.countdownProgressBorder.apply {
+            visibility = View.VISIBLE
+            alpha = 0f
+            setProgress(0f, animate = false) // Start at 0
+
+            // Fade in and animate progress simultaneously
+            animate()
+                .alpha(1f)
+                .setDuration(ANIM_MASTER_DURATION)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+
+            // Start progress animation immediately (not after fade-in)
+            post {
+                setProgress(progress, animate = true, duration = progressDuration)
+            }
+        }
+
+        // Start continuous smooth updates after initial animation completes
+        countdownUpdateHandler.postDelayed({
+            startProgressUpdates()
+        }, progressDuration)
+    }
+
+    private fun calculateProgressAnimationDuration(progress: Float): Long {
+        // The duration is proportional to the progress value
+        // Near 0% = PROGRESS_MIN_DURATION
+        // Near 100% = PROGRESS_MAX_DURATION
+        // This creates a natural feel where longer distances take more time
+
+        return when {
+            progress <= 0.1f -> PROGRESS_MIN_DURATION
+            progress >= 0.9f -> PROGRESS_MAX_DURATION
+            else -> {
+                // Linear interpolation between min and max based on progress
+                val range = PROGRESS_MAX_DURATION - PROGRESS_MIN_DURATION
+                val scaledProgress = (progress - 0.1f) / 0.8f // Normalize to 0-1 range
+                (PROGRESS_MIN_DURATION + (range * scaledProgress)).toLong()
+            }
+        }
+    }
+
+    private fun getCardCount(): Int {
+        var count = 0
+        val stack = ArrayDeque<View>().apply { add(binding.root) }
+        while (stack.isNotEmpty()) {
+            val v = stack.removeFirst()
+            if (v is MaterialCardView) count++
+            if (v is android.view.ViewGroup) {
+                for (i in 0 until v.childCount) stack.add(v.getChildAt(i))
+            }
+        }
+        return count
+    }
+
+    private fun getRowCount(): Int {
+        return collectLinearLayouts(binding.root).size
     }
 
     private fun calculateEventProgress(): Float {
@@ -231,17 +332,25 @@ class EventDetailActivity : AppCompatActivity() {
     }
 
     private fun startProgressUpdates() {
+        // Use more frequent updates with smooth animations for seamless progress
         progressUpdateRunnable = object : Runnable {
             override fun run() {
                 try {
-                    binding.countdownProgressBorder.setProgress(calculateEventProgress(), animate = false)
+                    val newProgress = calculateEventProgress()
+                    // Use animate = true with short duration for smooth transitions
+                    binding.countdownProgressBorder.setProgress(
+                        newProgress,
+                        animate = true,
+                        duration = PROGRESS_UPDATE_INTERVAL + 50L // Slightly longer than update interval for overlap
+                    )
                 } catch (e: Exception) {
                     android.util.Log.e(TAG, "Failed to update progress", e)
                 }
-                countdownUpdateHandler.postDelayed(this, 1000)
+                // Update more frequently for smoother animation
+                countdownUpdateHandler.postDelayed(this, PROGRESS_UPDATE_INTERVAL)
             }
         }
-        countdownUpdateHandler.postDelayed(progressUpdateRunnable!!, 1500)
+        countdownUpdateHandler.postDelayed(progressUpdateRunnable!!, PROGRESS_UPDATE_INTERVAL)
     }
 
     private fun setupClickListeners() {
@@ -323,8 +432,10 @@ class EventDetailActivity : AppCompatActivity() {
         val wasExpired = isCurrentlyExpired
         isCurrentlyExpired = countdownTime.isExpired
 
-        // Sync the progress border dimming with event expiration
-        binding.countdownProgressBorder.setDimmed(isCurrentlyExpired, animate = wasExpired != isCurrentlyExpired)
+        // Only update dimming if progress border has been revealed
+        if (progressBorderRevealed) {
+            binding.countdownProgressBorder.setDimmed(isCurrentlyExpired, animate = wasExpired != isCurrentlyExpired)
+        }
 
         if (isCurrentlyExpired && !wasExpired) {
             applyDimmingEffects(animate = true)
@@ -429,7 +540,7 @@ class EventDetailActivity : AppCompatActivity() {
 
     private fun animateViewDisappear(view: View) {
         val fadeOut = AlphaAnimation(1f, 0f).apply {
-            duration = 300
+            duration = ANIM_MASTER_DURATION
             fillAfter = true
             setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationStart(a: Animation?) {}
@@ -443,7 +554,7 @@ class EventDetailActivity : AppCompatActivity() {
     private fun animateViewAppear(view: View) {
         view.visibility = View.VISIBLE
         view.startAnimation(AlphaAnimation(0f, 1f).apply {
-            duration = 300
+            duration = ANIM_MASTER_DURATION
             fillAfter = true
         })
     }
