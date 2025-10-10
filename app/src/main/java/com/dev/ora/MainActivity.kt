@@ -522,7 +522,7 @@ class MainActivity : AppCompatActivity() {
     private fun showAddEventDialog() {
         val dialogBinding = DialogAddEventBinding.inflate(layoutInflater)
         var selectedDate: Calendar?
-        var selectedColor = "#DC143C"
+        var selectedColor = "#BF00FF"
 
         val tomorrow = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_MONTH, 1)
@@ -829,7 +829,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAddDurationEventDialog() {
         val dialogBinding = DialogAddDurationEventBinding.inflate(layoutInflater)
-        var selectedColor = "#DC143C"
+        var selectedColor = "#BF00FF"
         setupDurationColorSelection(dialogBinding) { color -> selectedColor = color }
         setupQuickDurationChips(dialogBinding)
         val dialog = MaterialAlertDialogBuilder(this).setView(dialogBinding.root).create()
