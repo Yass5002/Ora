@@ -41,7 +41,11 @@
                 android:textColor="@color/widget_title_color"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:includeFontPadding="false" />
+                android:includeFontPadding="false"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="14sp"
+                android:autoSizeMaxTextSize="22sp"
+                android:autoSizeStepGranularity="1sp" />
 
             <!-- Pin Icon -->
             <ImageView
@@ -72,7 +76,7 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <!-- Standard Layout (for medium/large widgets) -->
+            <!-- Standard Layout (for medium/large widgets and ALL x*2 widgets) -->
             <LinearLayout
                 android:id="@+id/layout_standard"
                 android:layout_width="match_parent"
@@ -81,7 +85,7 @@
                 android:gravity="center"
                 android:visibility="visible">
 
-                <!-- Time Display Card -->
+                <!-- Time Display Card - ALWAYS shown for x*2 widgets -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -101,7 +105,11 @@
                         android:textColor="@color/widget_accent_color"
                         android:textStyle="bold"
                         android:includeFontPadding="false"
-                        android:letterSpacing="0.03" />
+                        android:letterSpacing="0.03"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="18sp"
+                        android:autoSizeMaxTextSize="34sp"
+                        android:autoSizeStepGranularity="1sp" />
 
                     <!-- Human Readable Time -->
                     <TextView
@@ -112,11 +120,15 @@
                         android:textSize="11sp"
                         android:textColor="@color/widget_subtitle_color"
                         android:layout_marginTop="4dp"
-                        android:alpha="0.8" />
+                        android:alpha="0.8"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="9sp"
+                        android:autoSizeMaxTextSize="14sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Compact Layout (for small widgets) -->
+            <!-- Compact Layout (ONLY for truly small widgets like 1x1, 2x1) -->
             <LinearLayout
                 android:id="@+id/layout_compact"
                 android:layout_width="match_parent"
@@ -134,7 +146,11 @@
                     android:fontFamily="monospace"
                     android:textColor="@color/widget_accent_color"
                     android:textStyle="bold"
-                    android:includeFontPadding="false" />
+                    android:includeFontPadding="false"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="18sp"
+                    android:autoSizeMaxTextSize="36sp"
+                    android:autoSizeStepGranularity="1sp" />
             </LinearLayout>
 
             <!-- Expired Layout -->
@@ -205,7 +221,11 @@
                 android:text="Dec 25, 2024"
                 android:textSize="10sp"
                 android:textColor="@color/widget_subtitle_color"
-                android:alpha="0.7" />
+                android:alpha="0.7"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="12sp"
+                android:autoSizeStepGranularity="1sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -215,7 +235,11 @@
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/widget_brand_color"
                 android:alpha="0.4"
-                android:letterSpacing="0.15" />
+                android:letterSpacing="0.15"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="12sp"
+                android:autoSizeStepGranularity="1sp" />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
