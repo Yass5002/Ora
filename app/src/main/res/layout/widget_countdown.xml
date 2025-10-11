@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Loading..."
-                android:textSize="15sp"
+                android:textSize="20sp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/widget_title_color"
                 android:ellipsize="end"
@@ -87,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/widget_time_card"
                     android:orientation="vertical"
-                    android:padding="12dp"
+                    android:padding="10dp"
                     android:gravity="center">
 
                     <!-- Main Time Display -->
