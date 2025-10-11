@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp">
+
+    <!-- Glass Container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/widget_glass_background"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Status Indicator -->
+            <ImageView
+                android:id="@+id/widget_status_indicator"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:background="@drawable/widget_status_dot"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@null" />
+
+            <!-- Event Title -->
+            <TextView
+                android:id="@+id/widget_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Loading..."
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_title_color"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:includeFontPadding="false" />
+
+            <!-- Pin Icon -->
+            <ImageView
+                android:id="@+id/widget_pin_icon"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_pin_24"
+                android:visibility="gone"
+                android:alpha="0.7"
+                android:contentDescription="@null" />
+        </LinearLayout>
+
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/widget_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="12dp"
+            android:progressDrawable="@drawable/widget_progress_drawable"
+            android:max="100"
+            android:progress="0" />
+
+        <!-- Main Content Area -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <!-- Standard Layout (for medium/large widgets) -->
+            <LinearLayout
+                android:id="@+id/layout_standard"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="visible">
+
+                <!-- Time Display Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/widget_time_card"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:gravity="center">
+
+                    <!-- Main Time Display -->
+                    <TextView
+                        android:id="@+id/widget_time_main"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00d 00h 00m"
+                        android:textSize="24sp"
+                        android:fontFamily="monospace"
+                        android:textColor="@color/widget_accent_color"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"
+                        android:letterSpacing="0.03" />
+
+                    <!-- Human Readable Time -->
+                    <TextView
+                        android:id="@+id/widget_time_readable"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="in 2 days"
+                        android:textSize="11sp"
+                        android:textColor="@color/widget_subtitle_color"
+                        android:layout_marginTop="4dp"
+                        android:alpha="0.8" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Compact Layout (for small widgets) -->
+            <LinearLayout
+                android:id="@+id/layout_compact"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/widget_time_compact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2d 14h"
+                    android:textSize="26sp"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/widget_accent_color"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <!-- Expired Layout -->
+            <LinearLayout
+                android:id="@+id/layout_expired"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✓"
+                    android:textSize="32sp"
+                    android:textColor="@color/widget_success_color" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Event Completed"
+                    android:textSize="14sp"
+                    android:textColor="@color/widget_subtitle_color"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/layout_empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/widget_event_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_event_24"
+                    android:alpha="0.5"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No events"
+                    android:textSize="13sp"
+                    android:textColor="@color/widget_subtitle_color"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Footer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/widget_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Dec 25, 2024"
+                android:textSize="10sp"
+                android:textColor="@color/widget_subtitle_color"
+                android:alpha="0.7" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ORA"
+                android:textSize="9sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_brand_color"
+                android:alpha="0.4"
+                android:letterSpacing="0.15" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

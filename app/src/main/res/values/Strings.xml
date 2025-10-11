@@ -24,5 +24,7 @@
 
     <!-- Empty placeholder string used to satisfy lint (single space intended) -->
     <string name="empty_placeholder"> </string>
-
+    <!-- Widget strings -->
+    <string name="widget_name">ORA Countdown</string>
+    <string name="widget_description">Display countdown for your most important event</string>
 </resources>

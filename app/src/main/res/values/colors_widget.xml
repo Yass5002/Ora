@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget backgrounds -->
+    <color name="widget_background">#FAFAFA</color>
+    <color name="widget_border">#E0E0E0</color>
+    <color name="widget_card_background">#FFFFFF</color>
+    
+    <!-- Text colors -->
+    <color name="widget_title_color">#212121</color>
+    <color name="widget_subtitle_color">#757575</color>
+    <color name="widget_accent_color">#6750A4</color>
+    <color name="widget_brand_color">#6750A4</color>
+    <color name="widget_icon_color">#424242</color>
+    <color name="widget_success_color">#4CAF50</color>
+    
+    <!-- Progress colors -->
+    <color name="widget_progress_track">#E0E0E0</color>
+    <color name="widget_progress_start">#6750A4</color>
+    <color name="widget_progress_end">#9575CD</color>
+    
+    <!-- Status colors -->
+    <color name="widget_status_active">#4CAF50</color>
+</resources>

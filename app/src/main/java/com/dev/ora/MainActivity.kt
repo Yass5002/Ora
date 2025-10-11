@@ -25,6 +25,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -56,15 +57,22 @@ import com.dev.ora.utils.SwipeToActionCallback
 import com.dev.ora.utils.CountdownUtils
 import com.dev.ora.utils.ThemeManager
 import com.dev.ora.reminder.ReminderScheduler
+import com.dev.ora.widget.WidgetUpdateReceiver  // Widget support
+import com.dev.ora.widget.CountdownWidgetProvider  // Direct widget access
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
@@ -127,13 +135,22 @@ class MainActivity : AppCompatActivity() {
         setupClickListeners()
         setupSearchBar()
         checkFirstLaunch()
+
+        // Update widgets on app launch
+        updateWidgetsAfterDelay("App launched")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Force widget update when app comes to foreground
+        updateWidgets("App resumed")
     }
 
     private fun checkFirstLaunch() {
         val preferencesManager = PreferencesManager(this)
         if (preferencesManager.isFirstLaunch()) {
             lifecycleScope.launch {
-                kotlinx.coroutines.delay(500)
+                delay(500)
                 showWelcomeDialog()
             }
         }
@@ -181,6 +198,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    // Helper method to update widgets with logging
+    private fun updateWidgets(reason: String = "") {
+        try {
+            Log.d(TAG, "Updating widgets: $reason")
+            WidgetUpdateReceiver.notifyDatabaseChanged(this)
+            // Also force update directly for immediate refresh
+            CountdownWidgetProvider.forceUpdateAllWidgets(this)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating widgets", e)
+        }
+    }
+
+    // Helper method to update widgets after a short delay (for database operations to complete)
+    private fun updateWidgetsAfterDelay(reason: String = "", delayMs: Long = 100) {
+        lifecycleScope.launch {
+            delay(delayMs)
+            updateWidgets(reason)
+        }
     }
 
     private fun applyNotificationPreference(isGranted: Boolean) {
@@ -251,6 +288,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 CountdownNotificationService.startOrUpdateService(this@MainActivity)
+
+                // Update widgets after initialization
+                updateWidgets("Notifications initialized")
             } catch (_: Exception) {}
         }
     }
@@ -259,11 +299,16 @@ class MainActivity : AppCompatActivity() {
         try {
             val expiredEvents = viewModel.getExpiredEventsList()
             val eventsToDelete = expiredEvents.filter { !it.isPinned }
-            eventsToDelete.forEach { event ->
-                if (event.hasReminders) {
-                    reminderScheduler.cancelReminders(event.id)
+            if (eventsToDelete.isNotEmpty()) {
+                eventsToDelete.forEach { event ->
+                    if (event.hasReminders) {
+                        reminderScheduler.cancelReminders(event.id)
+                    }
+                    viewModel.deleteEvent(event)
                 }
-                viewModel.deleteEvent(event)
+                // Update widget after auto-delete with delay for DB operations
+                delay(100)
+                updateWidgets("Auto-delete performed")
             }
         } catch (_: Exception) {}
     }
@@ -318,7 +363,7 @@ class MainActivity : AppCompatActivity() {
                 updateSearchIcon(settingsButton, query.isNotEmpty())
                 searchJob?.cancel()
                 searchJob = lifecycleScope.launch {
-                    kotlinx.coroutines.delay(300)
+                    delay(300)
                     filterEvents(query)
                 }
             }
@@ -430,38 +475,71 @@ class MainActivity : AppCompatActivity() {
     private fun setupObservers() {
         lifecycleScope.launch {
             viewModel.allEvents.collectLatest { events ->
+                val wasEmpty = allEventsList.isEmpty()
+                val previousSize = allEventsList.size
+
                 countdownAdapter.submitList(events)
                 updateEmptyState(events.isEmpty())
                 allEventsList = events
+
                 if (currentSearchQuery.isNotEmpty()) {
                     filterEvents(currentSearchQuery)
                 }
+
+                // Update widgets when events change (after first load)
+                if (!isFirstLoad) {
+                    when {
+                        wasEmpty && events.isNotEmpty() -> updateWidgetsAfterDelay("First event added")
+                        events.isEmpty() && !wasEmpty -> updateWidgetsAfterDelay("All events removed")
+                        events.size != previousSize -> updateWidgetsAfterDelay("Events list changed")
+                    }
+                }
+
                 if (isFirstLoad) {
                     if (events.isNotEmpty()) {
                         binding.countdownRecyclerView.scheduleLayoutAnimation()
                     }
                     isFirstLoad = false
-                    kotlinx.coroutines.delay(200)
+                    delay(200)
                     initializeNotifications()
                 }
+
+                // Check for expired events and update widgets
+                checkForExpiredEvents(events)
             }
         }
+
         viewModel.errorMessage.observe(this) { errorMessage ->
             errorMessage?.let {
                 viewModel.clearErrorMessage()
             }
         }
+
         viewModel.expiredEventsCount.observe(this) { expiredCount ->
             expiredCount?.let { count ->
                 if (count > 0) {
                     viewModel.clearExpiredEventsCount()
+                    // Update widgets when events expire
+                    updateWidgetsAfterDelay("Events expired: $count")
                 }
             }
         }
+
         viewModel.pinActionResult.observe(this) { message ->
             message?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
                 viewModel.clearPinActionResult()
+            }
+        }
+    }
+
+    private fun checkForExpiredEvents(events: List<CountdownEvent>) {
+        lifecycleScope.launch {
+            val now = System.currentTimeMillis()
+            val hasExpiredEvents = events.any { it.targetDate.time <= now }
+            if (hasExpiredEvents) {
+                delay(1000) // Give time for auto-delete if enabled
+                updateWidgets("Expired events detected")
             }
         }
     }
@@ -519,6 +597,7 @@ class MainActivity : AppCompatActivity() {
         binding.emptyStateLayout.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.countdownRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
+
     private fun showAddEventDialog() {
         val dialogBinding = DialogAddEventBinding.inflate(layoutInflater)
         var selectedDate: Calendar?
@@ -606,6 +685,8 @@ class MainActivity : AppCompatActivity() {
                     reminderScheduler.scheduleReminders(newEvent)
                 }
                 CountdownNotificationService.startOrUpdateService(this@MainActivity)
+                // Update widget immediately after creating event
+                updateWidgetsAfterDelay("Event created: $finalTitle")
                 Toast.makeText(this@MainActivity, "Event created: $finalTitle", Toast.LENGTH_SHORT).show()
             }
         }
@@ -677,6 +758,8 @@ class MainActivity : AppCompatActivity() {
                 reminderScheduler.cancelReminders(updatedEvent.id)
             }
             CountdownNotificationService.startOrUpdateService(this@MainActivity)
+            // Update widget immediately after editing event
+            updateWidgetsAfterDelay("Event edited: ${updatedEvent.title}")
 
             dialog.dismiss()
             Toast.makeText(this, "Event updated", Toast.LENGTH_SHORT).show()
@@ -690,8 +773,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateDateTimeButtons(dialogBinding: DialogAddEventBinding, selectedDate: Calendar?) {
         selectedDate?.let { date ->
-            val dateFormat = java.text.SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
-            val timeFormat = java.text.SimpleDateFormat("h:mm a", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+            val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
             dialogBinding.selectDateButton.text = dateFormat.format(date.time)
             dialogBinding.selectTimeButton.text = timeFormat.format(date.time)
         }
@@ -768,6 +851,9 @@ class MainActivity : AppCompatActivity() {
                     R.id.menu_pin -> {
                         viewModel.togglePinStatus(event)
                         CountdownNotificationService.startOrUpdateService(this@MainActivity)
+                        // Update widget immediately after pin status change
+                        val action = if (event.isPinned) "unpinned" else "pinned"
+                        updateWidgetsAfterDelay("Event $action: ${event.title}")
                         true
                     }
                     R.id.menu_edit -> {
@@ -798,6 +884,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 viewModel.deleteEvent(event)
                 CountdownNotificationService.startOrUpdateService(this@MainActivity)
+                // Update widget immediately after deleting event
+                updateWidgetsAfterDelay("Event deleted: ${event.title}")
                 Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel") { _, _ ->
@@ -816,6 +904,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 viewModel.deleteEvent(event)
                 CountdownNotificationService.startOrUpdateService(this@MainActivity)
+                // Update widget immediately after deleting event
+                updateWidgetsAfterDelay("Event deleted: ${event.title}")
                 Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel") { _, _ ->
@@ -857,6 +947,8 @@ class MainActivity : AppCompatActivity() {
                     reminderScheduler.scheduleReminders(newEvent)
                 }
                 CountdownNotificationService.startOrUpdateService(this@MainActivity)
+                // Update widget immediately after creating event
+                updateWidgetsAfterDelay("Duration event created: $finalTitle")
                 Toast.makeText(this@MainActivity, "Event created: $finalTitle", Toast.LENGTH_SHORT).show()
             }
         }
@@ -1012,7 +1104,7 @@ class MainActivity : AppCompatActivity() {
         }
         exportButton.setOnClickListener {
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            exportLauncher.launch("project_curiosity_events_$timestamp.json")
+            exportLauncher.launch("ora_events_backup_$timestamp.json")
         }
         importButton.setOnClickListener { importLauncher.launch(arrayOf("application/json")) }
         cancelButton.setOnClickListener { dialog.dismiss() }
@@ -1097,14 +1189,12 @@ class MainActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // === ✨ COMPILER ERROR FIXED ✨ ===
-                // We now use the correct `addEventAndReturn` suspend function.
                 events.forEach { event ->
                     viewModel.addEventAndReturn(event.title, event.description, event.targetDate, event.color)
                 }
 
                 // Wait a moment for all DB operations to complete before the final reschedule.
-                kotlinx.coroutines.delay(500)
+                delay(500)
 
                 val allEvents = viewModel.getAllEventsList()
                 allEvents.forEach { event ->
@@ -1113,6 +1203,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 CountdownNotificationService.startOrUpdateService(this@MainActivity)
+                // Update widget after importing events
+                updateWidgetsAfterDelay("Events imported: ${events.size}")
 
                 runOnUiThread { Toast.makeText(this@MainActivity, "Imported ${events.size} events", Toast.LENGTH_SHORT).show() }
             } catch (e: Exception) {
