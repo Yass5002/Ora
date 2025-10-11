@@ -413,17 +413,29 @@ class CountdownWidgetProvider : AppWidgetProvider() {
         }
         views.setTextViewText(R.id.widget_time_main, mainTime)
 
-        // Format readable time
+        // Format readable time - improved logic for < 24 hours
         val readableTime = when {
             countdown.days > 30 -> "in ${countdown.days / 30} month${if (countdown.days / 30 > 1) "s" else ""}"
             countdown.days > 7 -> "in ${countdown.days / 7} week${if (countdown.days / 7 > 1) "s" else ""}"
             countdown.days > 1 -> "in ${countdown.days} days"
             countdown.days == 1L -> "tomorrow"
-            countdown.hours > 1 -> "in ${countdown.hours} hours"
-            countdown.hours == 1L -> "in 1 hour"
-            countdown.minutes > 1 -> "in ${countdown.minutes} minutes"
-            countdown.minutes == 1L -> "in 1 minute"
-            countdown.seconds > 0 -> "in ${countdown.seconds} seconds"
+            countdown.days == 0L -> {
+                // Less than 24 hours - show contextual info instead of redundant hours
+                when {
+                    countdown.hours >= 12 -> "later today"
+                    countdown.hours >= 6 -> "today"
+                    countdown.hours >= 3 -> "this afternoon"
+                    countdown.hours >= 1 -> "very soon"
+                    countdown.hours == 0L && countdown.minutes >= 30 -> "within the hour"
+                    countdown.hours == 0L && countdown.minutes >= 10 -> "coming up"
+                    countdown.hours == 0L && countdown.minutes >= 5 -> "in moments"
+                    countdown.hours == 0L && countdown.minutes >= 1 -> "imminent"
+                    countdown.seconds > 30 -> "less than a minute"
+                    countdown.seconds > 10 -> "seconds away"
+                    countdown.seconds > 0 -> "happening now"
+                    else -> "now"
+                }
+            }
             else -> "happening now"
         }
         views.setTextViewText(R.id.widget_time_readable, readableTime)
