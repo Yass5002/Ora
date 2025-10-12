@@ -23,7 +23,6 @@ import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sqrt
 
 class CountdownWidgetProvider : AppWidgetProvider() {
@@ -36,9 +35,7 @@ class CountdownWidgetProvider : AppWidgetProvider() {
         private const val UPDATE_INTERVAL_URGENT = 1000L  // Update every second when urgent
 
         // Widget size thresholds (dp)
-        // x*2 widgets are typically 110dp in height, we check for >= 105dp to ensure card is shown
-        private const val WIDGET_HEIGHT_2_UNITS = 105  // Threshold for x*2 widgets
-        private const val WIDGET_HEIGHT_1_UNIT = 80    // Anything below this is 1 unit height
+        private const val WIDGET_HEIGHT_2_UNITS = 100  // Minimum height for 2x2 widgets
 
         // Baseline used for responsive text scaling (dp)
         private const val BASE_WIDTH_DP = 250
@@ -260,17 +257,6 @@ class CountdownWidgetProvider : AppWidgetProvider() {
         return raw.coerceIn(0, 100)
     }
 
-    private fun shouldUseCompactLayout(width: Int, height: Int): Boolean {
-        // NEVER use compact layout for x*2 widgets (height >= 105dp)
-        // This ensures the card styling is ALWAYS shown for x*2 widgets
-        if (height >= WIDGET_HEIGHT_2_UNITS) {
-            return false // Always use standard layout with card for x*2 widgets
-        }
-
-        // Only use compact for truly small widgets (1x1, 2x1)
-        return true
-    }
-
     private fun createRemoteViews(
         context: Context,
         event: CountdownEvent?,
@@ -321,26 +307,20 @@ class CountdownWidgetProvider : AppWidgetProvider() {
         val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
         views.setTextViewText(R.id.widget_date, dateFormat.format(event.targetDate))
 
-        // Choose layout based on widget size and event state
-        val useCompact = shouldUseCompactLayout(widgetWidth, widgetHeight)
-
-        Log.d(TAG, "Widget size: ${widgetWidth}x${widgetHeight}, useCompact: $useCompact")
+        Log.d(TAG, "Widget size: ${widgetWidth}x${widgetHeight}dp")
 
         when {
             countdownTime.isExpired -> {
                 showExpiredState(views)
             }
-            useCompact -> {
-                showCompactLayout(views, countdownTime)
-            }
             else -> {
-                // ALWAYS show standard layout with card for x*2 widgets
+                // Always show standard layout with card
                 showStandardLayout(views, countdownTime)
             }
         }
 
         // Apply responsive text sizes
-        applyResponsiveTextSizes(views, widgetWidth, widgetHeight, useCompact)
+        applyResponsiveTextSizes(views, widgetWidth, widgetHeight)
 
         return views
     }
@@ -354,41 +334,23 @@ class CountdownWidgetProvider : AppWidgetProvider() {
 
         // Hide all layouts except empty
         views.setViewVisibility(R.id.layout_standard, View.GONE)
-        views.setViewVisibility(R.id.layout_compact, View.GONE)
         views.setViewVisibility(R.id.layout_expired, View.GONE)
         views.setViewVisibility(R.id.layout_empty, View.VISIBLE)
     }
 
     private fun showExpiredState(views: RemoteViews) {
         views.setViewVisibility(R.id.layout_standard, View.GONE)
-        views.setViewVisibility(R.id.layout_compact, View.GONE)
         views.setViewVisibility(R.id.layout_expired, View.VISIBLE)
         views.setViewVisibility(R.id.layout_empty, View.GONE)
     }
 
-    private fun showCompactLayout(views: RemoteViews, countdown: CountdownTime) {
-        views.setViewVisibility(R.id.layout_standard, View.GONE)
-        views.setViewVisibility(R.id.layout_compact, View.VISIBLE)
-        views.setViewVisibility(R.id.layout_expired, View.GONE)
-        views.setViewVisibility(R.id.layout_empty, View.GONE)
-
-        // Format compact time - for truly small widgets only
-        val compactTime = when {
-            countdown.days > 999 -> "${countdown.days}d"
-            countdown.days > 0 -> "${countdown.days}d ${countdown.hours}h"
-            countdown.hours > 0 -> "${countdown.hours}h ${countdown.minutes}m"
-            countdown.minutes > 0 -> "${countdown.minutes}m ${countdown.seconds}s"
-            else -> "${countdown.seconds}s"
-        }
-        views.setTextViewText(R.id.widget_time_compact, compactTime)
-    }
-
     private fun showStandardLayout(views: RemoteViews, countdown: CountdownTime) {
-        // THIS IS ALWAYS USED FOR x*2 WIDGETS - CARD STYLING IS PRESERVED
+        // Always show standard layout for all widgets
         views.setViewVisibility(R.id.layout_standard, View.VISIBLE)
-        views.setViewVisibility(R.id.layout_compact, View.GONE)
         views.setViewVisibility(R.id.layout_expired, View.GONE)
         views.setViewVisibility(R.id.layout_empty, View.GONE)
+
+        Log.d(TAG, "Showing standard layout with card background")
 
         // Format main time display - shows seconds when appropriate
         val mainTime = buildString {
@@ -413,14 +375,13 @@ class CountdownWidgetProvider : AppWidgetProvider() {
         }
         views.setTextViewText(R.id.widget_time_main, mainTime)
 
-        // Format readable time - improved logic for < 24 hours
+        // Format readable time
         val readableTime = when {
             countdown.days > 30 -> "in ${countdown.days / 30} month${if (countdown.days / 30 > 1) "s" else ""}"
             countdown.days > 7 -> "in ${countdown.days / 7} week${if (countdown.days / 7 > 1) "s" else ""}"
             countdown.days > 1 -> "in ${countdown.days} days"
             countdown.days == 1L -> "tomorrow"
             countdown.days == 0L -> {
-                // Less than 24 hours - show contextual info instead of redundant hours
                 when {
                     countdown.hours >= 12 -> "later today"
                     countdown.hours >= 6 -> "today"
@@ -567,8 +528,8 @@ class CountdownWidgetProvider : AppWidgetProvider() {
     }
 
     // Responsive text sizing based on widget size
-    private fun applyResponsiveTextSizes(views: RemoteViews, width: Int, height: Int, isCompact: Boolean) {
-        // For x*2 widgets, we want to ensure good readability of the card content
+    private fun applyResponsiveTextSizes(views: RemoteViews, width: Int, height: Int) {
+        // Check if this is a 2x2 or larger widget
         val isHeight2Units = height >= WIDGET_HEIGHT_2_UNITS
 
         // Compute a scale factor based on area
@@ -576,19 +537,15 @@ class CountdownWidgetProvider : AppWidgetProvider() {
         val scaleH = height.toFloat() / BASE_HEIGHT_DP
         val areaScale = sqrt(max(0.5f, scaleW) * max(0.5f, scaleH))
 
-        // For x*2 widgets, use a more conservative scale to preserve card aesthetics
-        val scale = if (isHeight2Units) {
-            areaScale.coerceIn(0.85f, 1.30f)
-        } else {
-            areaScale.coerceIn(0.80f, 1.40f)
-        }
+        // Use a conservative scale to preserve card aesthetics
+        val scale = areaScale.coerceIn(0.85f, 1.30f)
 
         // Title sizing
         val titleBase = 20f
         val titleSize = (titleBase * scale).coerceIn(14f, 22f)
         views.setTextViewTextSize(R.id.widget_title, TypedValue.COMPLEX_UNIT_SP, titleSize)
 
-        // Allow 2 lines on x*2 widgets for better title display
+        // Allow 2 lines on 2x2 widgets for better title display
         val maxLines = if (isHeight2Units) 2 else 1
         views.setInt(R.id.widget_title, "setMaxLines", maxLines)
 
@@ -597,22 +554,14 @@ class CountdownWidgetProvider : AppWidgetProvider() {
         val dateSize = (dateBase * scale).coerceIn(8f, 12f)
         views.setTextViewTextSize(R.id.widget_date, TypedValue.COMPLEX_UNIT_SP, dateSize)
 
-        if (isCompact) {
-            // Compact layout (only for truly small widgets)
-            val compactBase = 26f
-            val compactSize = (compactBase * scale * 1.05f).coerceIn(18f, 36f)
-            views.setTextViewTextSize(R.id.widget_time_compact, TypedValue.COMPLEX_UNIT_SP, compactSize)
-        } else {
-            // Standard layout (ALWAYS used for x*2 widgets)
-            // Slightly larger text for the card display
-            val mainBase = if (isHeight2Units) 26f else 24f
-            val mainSize = (mainBase * scale).coerceIn(18f, 34f)
-            views.setTextViewTextSize(R.id.widget_time_main, TypedValue.COMPLEX_UNIT_SP, mainSize)
+        // Standard layout text sizes (always used)
+        val mainBase = if (isHeight2Units) 26f else 24f
+        val mainSize = (mainBase * scale).coerceIn(18f, 34f)
+        views.setTextViewTextSize(R.id.widget_time_main, TypedValue.COMPLEX_UNIT_SP, mainSize)
 
-            // Readable time
-            val readableBase = 11f
-            val readableSize = (readableBase * scale).coerceIn(9f, 14f)
-            views.setTextViewTextSize(R.id.widget_time_readable, TypedValue.COMPLEX_UNIT_SP, readableSize)
-        }
+        // Readable time
+        val readableBase = 11f
+        val readableSize = (readableBase * scale).coerceIn(9f, 14f)
+        views.setTextViewTextSize(R.id.widget_time_readable, TypedValue.COMPLEX_UNIT_SP, readableSize)
     }
 }

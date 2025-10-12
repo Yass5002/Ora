@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:theme="@android:style/Theme.DeviceDefault.DayNight">
 
     <!-- Glass Container -->
     <LinearLayout
@@ -22,45 +22,38 @@
 
             <!-- Status Indicator -->
             <ImageView
-                android:id="@+id/widget_status_indicator"
                 android:layout_width="6dp"
                 android:layout_height="6dp"
                 android:background="@drawable/widget_status_dot"
                 android:layout_marginEnd="8dp"
+                android:visibility="visible"
                 android:contentDescription="@null" />
 
             <!-- Event Title -->
             <TextView
-                android:id="@+id/widget_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Loading..."
+                android:text="Birthday Party"
                 android:textSize="20sp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/widget_title_color"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:includeFontPadding="false"
-                android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="14sp"
-                android:autoSizeMaxTextSize="22sp"
-                android:autoSizeStepGranularity="1sp" />
+                android:includeFontPadding="false" />
 
             <!-- Pin Icon -->
             <ImageView
-                android:id="@+id/widget_pin_icon"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
                 android:src="@drawable/ic_pin_24"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:alpha="0.7"
                 android:contentDescription="@null" />
         </LinearLayout>
 
         <!-- Progress Bar -->
         <ProgressBar
-            android:id="@+id/widget_progress_bar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="3dp"
@@ -68,7 +61,7 @@
             android:layout_marginBottom="12dp"
             android:progressDrawable="@drawable/widget_progress_drawable"
             android:max="100"
-            android:progress="0" />
+            android:progress="65" />
 
         <!-- Main Content Area -->
         <FrameLayout
@@ -76,9 +69,8 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <!-- Standard Layout (ALWAYS used for all widgets since minimum is 2x2) -->
+            <!-- Standard Layout -->
             <LinearLayout
-                android:id="@+id/layout_standard"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -95,87 +87,26 @@
 
                     <!-- Main Time Display -->
                     <TextView
-                        android:id="@+id/widget_time_main"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="00d 00h 00m"
+                        android:text="3d 14h 25m"
                         android:textSize="28sp"
                         android:fontFamily="monospace"
                         android:textColor="@color/widget_accent_color"
                         android:textStyle="bold"
                         android:includeFontPadding="false"
-                        android:letterSpacing="0.03"
-                        android:autoSizeTextType="uniform"
-                        android:autoSizeMinTextSize="18sp"
-                        android:autoSizeMaxTextSize="34sp"
-                        android:autoSizeStepGranularity="1sp" />
+                        android:letterSpacing="0.03" />
 
                     <!-- Human Readable Time -->
                     <TextView
-                        android:id="@+id/widget_time_readable"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="in 2 days"
+                        android:text="in 3 days"
                         android:textSize="11sp"
                         android:textColor="@color/widget_subtitle_color"
                         android:layout_marginTop="4dp"
-                        android:alpha="0.8"
-                        android:autoSizeTextType="uniform"
-                        android:autoSizeMinTextSize="9sp"
-                        android:autoSizeMaxTextSize="14sp"
-                        android:autoSizeStepGranularity="1sp" />
+                        android:alpha="0.8" />
                 </LinearLayout>
-            </LinearLayout>
-
-            <!-- Expired Layout -->
-            <LinearLayout
-                android:id="@+id/layout_expired"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="✓"
-                    android:textSize="32sp"
-                    android:textColor="@color/widget_success_color" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Event Completed"
-                    android:textSize="14sp"
-                    android:textColor="@color/widget_subtitle_color"
-                    android:layout_marginTop="4dp" />
-            </LinearLayout>
-
-            <!-- Empty State -->
-            <LinearLayout
-                android:id="@+id/layout_empty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/widget_event_icon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_event_24"
-                    android:alpha="0.5"
-                    android:contentDescription="@null" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="No events"
-                    android:textSize="13sp"
-                    android:textColor="@color/widget_subtitle_color"
-                    android:layout_marginTop="8dp" />
             </LinearLayout>
         </FrameLayout>
 
@@ -188,18 +119,13 @@
             android:layout_marginTop="8dp">
 
             <TextView
-                android:id="@+id/widget_date"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Dec 25, 2024"
+                android:text="Jan 15, 2025"
                 android:textSize="10sp"
                 android:textColor="@color/widget_subtitle_color"
-                android:alpha="0.7"
-                android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="8sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:autoSizeStepGranularity="1sp" />
+                android:alpha="0.7" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -209,11 +135,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/widget_brand_color"
                 android:alpha="0.4"
-                android:letterSpacing="0.15"
-                android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="8sp"
-                android:autoSizeMaxTextSize="12sp"
-                android:autoSizeStepGranularity="1sp" />
+                android:letterSpacing="0.15" />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
