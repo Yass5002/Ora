@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ProjectCuriosity"
+rootProject.name = "ORA"
 include(":app")

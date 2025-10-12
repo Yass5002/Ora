@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.ProjectCuriosity" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Ora" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/on_primary</item>
@@ -45,10 +45,8 @@
         <item name="android:windowTranslucentNavigation">false</item>
     </style>
 
-    <style name="Theme.ProjectCuriosity" parent="Base.Theme.ProjectCuriosity" />
-
-    <!-- Added Theme.Ora used by EventDetailActivity in AndroidManifest.xml -->
-    <style name="Theme.Ora" parent="Theme.ProjectCuriosity">
+    <!-- Theme.Ora used by EventDetailActivity in AndroidManifest.xml -->
+    <style name="Theme.Ora" parent="Base.Theme.Ora">
         <!-- Keep it minimal: inherit colors and attributes from the main app theme. You can customize this later. -->
         <!-- Make sure the app controls system bars so the navigation bar matches the activity surface -->
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>

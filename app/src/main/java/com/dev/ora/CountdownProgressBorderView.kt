@@ -444,8 +444,8 @@ class CountdownProgressBorderView @JvmOverloads constructor(
 
         borderPaint.strokeWidth = borderWidth
 
-        // Draw subtle background track
-        backgroundPaint.alpha = (255 * 0.3f * dimAlpha).toInt()
+        // Draw subtle background track - CHANGED FROM 0.3f TO 0.5f FOR BETTER VISIBILITY
+        backgroundPaint.alpha = (255 * 0.7f * dimAlpha).toInt()
         canvas.drawPath(borderPath, backgroundPaint)
 
         // Calculate the progress path
