@@ -1,25 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark theme - use consistent neutral colors -->
+    <!--  Dark theme - use consistent neutral colors  -->
     <color name="widget_background">@android:color/system_neutral1_900</color>
     <color name="widget_border">@android:color/system_neutral2_700</color>
     <color name="widget_card_background">@android:color/system_neutral1_800</color>
-
-    <!-- Text colors -->
+    <!--  Text colors  -->
     <color name="widget_title_color">@android:color/system_neutral1_10</color>
     <color name="widget_subtitle_color">@android:color/system_neutral2_200</color>
     <color name="widget_icon_color">@android:color/system_neutral2_100</color>
-
-    <!-- Accent colors -->
+    <!--  Accent colors  -->
     <color name="widget_accent_color">@android:color/system_accent1_200</color>
     <color name="widget_brand_color">@android:color/system_accent1_200</color>
     <color name="widget_success_color">@android:color/system_accent3_200</color>
-
-    <!-- Progress -->
+    <!--  Progress  -->
     <color name="widget_progress_track">@android:color/system_neutral2_700</color>
     <color name="widget_progress_start">@android:color/system_accent1_200</color>
     <color name="widget_progress_end">@android:color/system_accent1_200</color>
-
-    <!-- Status -->
+    <!--  Status  -->
     <color name="widget_status_active">@android:color/system_accent3_200</color>
 </resources>

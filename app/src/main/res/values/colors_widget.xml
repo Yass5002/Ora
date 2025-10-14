@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Widget backgrounds -->
-    <color name="widget_background">#FAFAFA</color>
-    <color name="widget_border">#E0E0E0</color>
-    <color name="widget_card_background">#FFFFFF</color>
-    
+    <!-- Widget backgrounds with translucency for blur effect -->
+    <!-- Use with android:background and consider adding blur in RemoteViews -->
+    <color name="widget_background">#E6F8F9FA</color> <!-- Increased opacity for better blur backdrop -->
+    <color name="widget_background_blur">#CCFFFFFF</color> <!-- Additional blur layer option -->
+    <color name="widget_border">#33E8EAED</color> <!-- Slightly more visible border -->
+    <color name="widget_card_background">#D9FFFFFF</color> <!-- Increased for better contrast -->
+
     <!-- Text colors -->
-    <color name="widget_title_color">#212121</color>
-    <color name="widget_subtitle_color">#757575</color>
-    <color name="widget_accent_color">#6750A4</color>
-    <color name="widget_brand_color">#6750A4</color>
-    <color name="widget_icon_color">#424242</color>
-    <color name="widget_success_color">#4CAF50</color>
-    
-    <!-- Progress colors -->
-    <color name="widget_progress_track">#E0E0E0</color>
-    <color name="widget_progress_start">#6750A4</color>
-    <color name="widget_progress_end">#9575CD</color>
-    
+    <color name="widget_title_color">#DE202124</color> <!-- Slightly more opaque -->
+    <color name="widget_subtitle_color">#99575A5E</color> <!-- Better visibility -->
+    <color name="widget_accent_color">#CC1A73E8</color> <!-- More vibrant -->
+    <color name="widget_brand_color">#CC1A73E8</color>
+    <color name="widget_icon_color">#B33C4043</color>
+    <color name="widget_success_color">#B334A853</color> <!-- Increased opacity -->
+
+    <!-- Progress colors - FIXED VISIBILITY -->
+    <color name="widget_progress_track">#33C5CAD2</color> <!-- Much more visible track -->
+    <color name="widget_progress_start">#CC1A73E8</color> <!-- More vibrant -->
+    <color name="widget_progress_end">#994285F4</color> <!-- Better gradient visibility -->
+
     <!-- Status colors -->
-    <color name="widget_status_active">#4CAF50</color>
+    <color name="widget_status_active">#B334A853</color> <!-- More prominent -->
+
 </resources>

@@ -603,10 +603,10 @@ class MainActivity : AppCompatActivity() {
         var selectedDate: Calendar?
         var selectedColor = "#BF00FF"
 
-        val tomorrow = Calendar.getInstance().apply {
-            add(Calendar.DAY_OF_MONTH, 1)
+// Use current time + 5 minutes as default
+        selectedDate = Calendar.getInstance().apply {
+            add(Calendar.MINUTE, 5)
         }
-        selectedDate = tomorrow
         updateDateTimeButtons(dialogBinding, selectedDate)
 
         setupColorSelection(dialogBinding) { color ->

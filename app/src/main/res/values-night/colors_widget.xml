@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Widget backgrounds (Dark) -->
-    <color name="widget_background">#1F1F1F</color>
-    <color name="widget_border">#333333</color>
-    <color name="widget_card_background">#2C2C2C</color>
-    
+    <!-- Widget backgrounds (Dark) with translucency for blur -->
+    <color name="widget_background">#E61A1C1E</color> <!-- Increased opacity -->
+    <color name="widget_background_blur">#CC000000</color> <!-- Additional blur layer -->
+    <color name="widget_border">#33616161</color> <!-- More visible border -->
+    <color name="widget_card_background">#D9202125</color> <!-- Better card presence -->
+
     <!-- Text colors (Dark) -->
-    <color name="widget_title_color">#E0E0E0</color>
-    <color name="widget_subtitle_color">#9E9E9E</color>
-    <color name="widget_accent_color">#BB86FC</color>
-    <color name="widget_brand_color">#BB86FC</color>
-    <color name="widget_icon_color">#B0B0B0</color>
-    <color name="widget_success_color">#66BB6A</color>
-    
-    <!-- Progress colors (Dark) -->
-    <color name="widget_progress_track">#424242</color>
-    <color name="widget_progress_start">#BB86FC</color>
-    <color name="widget_progress_end">#7C4DFF</color>
-    
+    <color name="widget_title_color">#E6E8EAED</color> <!-- Increased opacity -->
+    <color name="widget_subtitle_color">#B39DA1A6</color> <!-- Better readability -->
+    <color name="widget_accent_color">#CC8AB4F8</color> <!-- More vibrant -->
+    <color name="widget_brand_color">#CC8AB4F8</color>
+    <color name="widget_icon_color">#99A8ADB3</color> <!-- More visible -->
+    <color name="widget_success_color">#B381C784</color>
+
+    <!-- Progress colors (Dark) - FIXED VISIBILITY -->
+    <color name="widget_progress_track">#4D4A4C50</color> <!-- Much more visible track -->
+    <color name="widget_progress_start">#CC8AB4F8</color> <!-- More vibrant -->
+    <color name="widget_progress_end">#99A8C9FA</color> <!-- Better gradient -->
+
     <!-- Status colors (Dark) -->
-    <color name="widget_status_active">#66BB6A</color>
+    <color name="widget_status_active">#B381C784</color> <!-- More prominent -->
+
 </resources>
