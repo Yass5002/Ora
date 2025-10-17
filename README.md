@@ -16,8 +16,6 @@
   </a>
 </p>
 
-<img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/event_detail_dark.png" width="300px" />
-
 </div>
 
 ---
