@@ -17,6 +17,7 @@
 </p>
 
 </div>
+
 ---
 
 ORA isn't just a timer; it's a visual experience. Designed for Android with Kotlin, it focuses on a clean, intuitive UI and powerful features, all while being completely free and ad-free.
