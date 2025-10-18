@@ -6,18 +6,17 @@
 
 <p>
   <a href="https://github.com/Yass5002/Ora/releases/latest">
-    <img src="https://img.shields.io/github/v/release/Yass5002/Ora?style=for-the-badge&logo=github&label=Latest%20Release&color=A435F0" alt="Latest Release"/>
+    <img src="https://img.shields.io/github/v/release/Yass5002/Ora?style=for-the-badge&logo=github&label=Latest%20Release&color=A435F0&cacheSeconds=300" alt="Latest Release"/>
   </a>
   <a href="https://github.com/Yass5002/Ora/releases">
-    <img src="https://img.shields.io/github/downloads/Yass5002/Ora/total?style=for-the-badge&logo=github&label=Downloads&color=3DDC84" alt="Downloads"/>
+    <img src="https://img.shields.io/github/downloads/Yass5002/Ora/total?style=for-the-badge&logo=github&label=Downloads&color=3DDC84&cacheSeconds=300" alt="Downloads"/>
   </a>
   <a href="https://github.com/Yass5002/Ora/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/Yass5002/Ora?style=for-the-badge&label=License&color=1572B6" alt="License"/>
+    <img src="https://img.shields.io/github/license/Yass5002/Ora?style=for-the-badge&label=License&color=1572B6&logo=mit&cacheSeconds=300" alt="License"/>
   </a>
 </p>
 
 </div>
-
 ---
 
 ORA isn't just a timer; it's a visual experience. Designed for Android with Kotlin, it focuses on a clean, intuitive UI and powerful features, all while being completely free and ad-free.
@@ -57,15 +56,21 @@ ORA is packed with thoughtful features designed for a premium user experience:
 
 ### 📸 Screenshots
 
+<div align="center">
+
 | Dark Mode 🌙 | Light Mode ☀️ |
 | :----------: | :-----------: |
 | <img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/main_dark.png" width="280px" /> | <img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/main_light.png" width="280px" /> |
 | <img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/event_detail_dark.png" width="280px" /> | <img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/event_detail_light.png" width="280px" /> |
 
-<div align="center">
-  <h4>Home Screen Widget</h4>
-  <img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/widget_dark.png" width="280px" />
-  <img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/widget_light.png" width="280px" />
+<br>
+
+<h4>Home Screen Widget</h4>
+
+| Dark Mode 🌙 | Light Mode ☀️ |
+| :----------: | :-----------: |
+| <img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/widget_dark.png" width="280px" /> | <img src="https://raw.githubusercontent.com/Yass5002/Ora/main/ora_screenshots/widget_light.png" width="280px" /> |
+
 </div>
 
 ---
