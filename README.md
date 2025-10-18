@@ -16,6 +16,10 @@
   </a>
 </p>
 
+<br>
+
+![ORA Demo](https://github.com/Yass5002/Ora/blob/main/ora_screenshots/demo.gif)
+
 </div>
 
 ---
