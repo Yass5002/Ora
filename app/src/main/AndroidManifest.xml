@@ -110,15 +110,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Update your WidgetUpdateReceiver if not already registered -->
-        <receiver
-            android:name=".widget.WidgetUpdateReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.dev.ora.DATABASE_CHANGED" />
-            </intent-filter>
-        </receiver>
-
     </application>
 
 </manifest>
